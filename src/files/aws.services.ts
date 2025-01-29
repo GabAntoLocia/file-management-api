@@ -8,9 +8,7 @@ export class AwsService {
 
     constructor() {
         // Configura el cliente S3
-        console.log('AWS_ACCESS_KEY_ID', process.env.AWS_ACCESS_KEY);
-        console.log('AWS_SECRET_ACCESS_KEY', process.env.AWS_SECRET_KEY);
-        console.log('AWS_S3_REGION', process.env.AWS_S3_REGION);
+
         this.s3 = new S3({
             // accessKeyId: process.env.AWS_ACCESS_KEY,
             // secretAccessKey: process.env.AWS_SECRET_KEY,
@@ -82,7 +80,7 @@ export class AwsService {
                 Bucket: bucketName,
                 Key: key,
             };
-            console.log('deleteParams', deleteParams);
+   
             await this.s3.deleteObject(deleteParams).promise();
         } catch (error) {
             throw new HttpException(
@@ -116,9 +114,6 @@ export class AwsService {
     async renameFile(bucketName: string, oldKey: string, newKey: string): Promise<string> {
         // Copia el archivo con el nuevo nombre
         try {
-            console.log('oldKey', oldKey);
-            console.log('newKey', newKey);
-            console.log('bucketName', bucketName);
             await this.s3
                 .copyObject({
                     Bucket: bucketName,
@@ -126,7 +121,6 @@ export class AwsService {
                     Key: newKey, // Nuevo nombre del archivo
                 })
                 .promise();
-            console.log('oldKey', oldKey);
             // Elimina el archivo original
             await this.s3
                 .deleteObject({

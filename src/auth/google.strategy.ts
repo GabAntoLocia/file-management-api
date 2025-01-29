@@ -18,7 +18,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     refreshToken: string,
     profile: any,
   ): Promise<any> {
-    console.log('Google Profile:', profile); // Verifica el contenido del perfil
 
     const { id, emails, displayName, photos } = profile;
     const user = {

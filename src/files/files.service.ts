@@ -24,7 +24,6 @@ export class FilesService {
      **/
     async uploadFile(file: Express.Multer.File, ownerId: string): Promise<string> {
         try {
-            console.log(file);
             const bucketName = process.env.AWS_S3_BUCKET_NAME || ''; // Lee el nombre del bucket desde el .env
             const newFile = new this.fileModel({
                 filename: file.originalname,
@@ -71,18 +70,33 @@ export class FilesService {
      * await filesService.deleteFile(key);
      * ```
      **/
-    async deleteFile(key: string): Promise<void> {
+    async deleteFile(key: string): Promise<{ message: string }> {
         try {
-            const bucketName = process.env.AWS_S3_BUCKET_NAME || ''; // Lee el nombre del bucket desde el .env
+            const bucketName = process.env.AWS_S3_BUCKET_NAME || '';
 
-            await this.fileModel.findOneAndDelete({ url: key });
+            if (!bucketName) {
+                throw new Error('El nombre del bucket no está definido.');
+            }
+
+
+            // Primero elimina el archivo del bucket S3
             await this.awsService.deleteFile(key, bucketName);
-            // await this.awsService.deleteFile("images/1738107985827-un-grupo-de-buceadores-en-un-gran-tunel-submarino-h0Sffpz8LoY", bucketName);
+    
+
+            // Luego elimina el documento de la base de datos
+            const deletedDocument = await this.fileModel.findOneAndDelete({ url: key });
+            if (!deletedDocument) {
+                throw new Error(`No se encontró el archivo con la clave "${key}" en la base de datos.`);
+            }
+
+            return { message: `El archivo con la clave "${key}" se eliminó correctamente.` };
         } catch (error) {
+            console.error('Error al eliminar el archivo:', error.message);
+
+            // Lanza el error al controlador
             throw new Error('Error al eliminar el archivo: ' + error.message);
         }
     }
-
     /**
      * Actualiza un archivo de AWS S3
      * @param key Clave (nombre) del archivo en el bucket
@@ -93,15 +107,40 @@ export class FilesService {
      * await filesService.updateFile(key);
      * ```
      **/
-    async renameFile(key: string, oldKey: string): Promise<void> {
+    async renameFile(key: string, oldKey: string): Promise<string> {
         try {
-            const bucketName = process.env.AWS_S3_BUCKET_NAME || ''; // Lee el nombre del bucket desde el .env
-            console.log('oldKey', oldKey);
-            console.log('key', key);
-            console.log('bucketName', bucketName);
-            await this.fileModel.findOneAndUpdate({ url: oldKey }, { url: await this.awsService.renameFile(bucketName, oldKey, key) });
+            const bucketName = process.env.AWS_S3_BUCKET_NAME || ''; // Nombre del bucket
+            if (!bucketName) {
+                throw new Error('Bucket name is not defined.');
+            }
+
+
+            // Verificar si el documento existe
+            const existingDocument = await this.fileModel.findOne({ url: oldKey });
+            if (!existingDocument) {
+                throw new Error(`Document with oldKey ${oldKey} not found.`);
+            }
+
+            // Renombrar el archivo en AWS S3
+            const newUrl = await this.awsService.renameFile(bucketName, oldKey, key);
+
+
+            // Actualizar el documento en la base de datos
+            const updatedDocument = await this.fileModel.findOneAndUpdate(
+                { url: oldKey },
+                { url: newUrl },
+                { new: true } // Devuelve el documento actualizado
+            );
+
+            if (!updatedDocument) {
+                throw new Error('Documento no encontrado o no se pudo actualizar.');
+            }
+
+
+            return newUrl;
         } catch (error) {
-            throw new Error('Error ' + error.message);
+            console.error('Error renaming file:', error.message);
+            throw new Error('Error al renombrar el archivo ' + error.message);
         }
     }
 
@@ -137,8 +176,6 @@ export class FilesService {
     async uploadFromUrl(imageUrl: string): Promise<string> {
         try {
             const bucketName = process.env.AWS_S3_BUCKET_NAME || ''; // Lee el nombre del bucket desde el .env
-            console.log('imageUrl', imageUrl);
-            console.log('bucketName', bucketName);
             const key = `${Date.now()}-${imageUrl.split('/').pop()}`; // Genera un nombre único para la imagen
             return await this.awsService.uploadImageFromUrl(imageUrl, bucketName, key);
         } catch (error) {

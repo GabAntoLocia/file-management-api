@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Delete, UseGuards, Param, UploadedFile, UseInterceptors, Put, Body, Req, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Post, Get, Delete, UseGuards, Param, UploadedFile, UseInterceptors, Put, Body, Req, UsePipes, ValidationPipe, HttpException, HttpStatus } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '@nestjs/passport';
 import { FilesService } from './files.service';
@@ -47,12 +47,21 @@ export class FilesController {
     }
 
     @Put('rename/:key')
-    async updateFile(@Param('key') key: string, @Body() body: RenameFileDto) {
+    async renameFile(@Body() renameDto: { oldKey: string; newKey: string }) {
         try {
-            return this.filesService.renameFile(body.name, key); // Actualiza el archivo en S3
+            const { oldKey, newKey } = renameDto;
+            await this.filesService.renameFile(newKey, oldKey);
+
+            return {
+                message: 'File renamed successfully',
+            };
         } catch (error) {
-            // return { message: 'Error al actualizar el archivo' + error.message };
-            response.status(500).send({ message: 'Error' + error });
+
+            // Lanza una excepción con el mensaje del error
+            throw new HttpException(
+                { message: 'Error al renombrar el archivo', error: error.message },
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
         }
     }
 

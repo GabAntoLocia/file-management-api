@@ -14,10 +14,7 @@ export class UnsplashService {
    */
   async searchImages(query: string, page = 1, perPage = 10): Promise<any> {
     try {
-        console.log('query', query);
-        console.log('page', page);
-        console.log('perPage', perPage);
-        console.log('this.ACCESS_KEY', this.ACCESS_KEY);
+   
       const response = await axios.get(`${this.UNSPLASH_API_URL}/search/photos`, {
         headers: {
           Authorization: `Client-ID ${this.ACCESS_KEY}`,
@@ -31,7 +28,6 @@ export class UnsplashService {
 
       return response.data;
     } catch (error) {
-        console.log(error);
       throw new HttpException(
         error.response?.data || 'Error al comunicarse con Unsplash',
         error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,

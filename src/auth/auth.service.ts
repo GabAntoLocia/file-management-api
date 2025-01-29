@@ -66,7 +66,8 @@ export class AuthService {
         const resetUrl = `https://filemanagementapi.com/reset-password?token=${resetToken}`;
         await this.sendResetEmail(user.email, resetUrl);
 
-        return true;
+        // return true;
+        return {token: resetToken};
     }
 
     // Envia un correo electrónico con el enlace de recuperación

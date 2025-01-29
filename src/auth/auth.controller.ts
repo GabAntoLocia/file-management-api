@@ -21,12 +21,12 @@ export class AuthController {
 
     @Post('forgot-password')
     async forgotPassword(@Body('email') email: string) {
-        const success = await this.authService.generateResetToken(email);
-        if (!success) {
+        const token   = await this.authService.generateResetToken(email);
+        if (token === false) {
             throw new BadRequestException('No se encontró una cuenta con ese correo electrónico');
         }
 
-        return { message: 'Se ha enviado un enlace de recuperación a su correo electrónico' };
+        return { message: 'Se ha enviado un enlace de recuperación a su correo electrónico' , token };
     }
 
     @Post('reset-password')
