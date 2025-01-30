@@ -13,6 +13,8 @@ import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage, memoryStorage } from 'multer';
 import { extname } from 'path';
 import { LoggerMiddleware } from './files/files.logger.middleware';
+import { User, UserSchema } from './users/user.schema';
+import { DatabaseInitService } from './database-init.service';
 
 
 @Module({
@@ -33,6 +35,7 @@ import { LoggerMiddleware } from './files/files.logger.middleware';
         }
       },
     }),
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env', // Ruta al archivo .env
@@ -51,7 +54,7 @@ import { LoggerMiddleware } from './files/files.logger.middleware';
     AuthController,
     UnsplashController
   ],
-  providers: [],
+  providers: [DatabaseInitService],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
