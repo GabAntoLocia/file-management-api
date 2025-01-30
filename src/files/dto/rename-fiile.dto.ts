@@ -1,10 +1,8 @@
-import { IsNotEmpty, IsString } from "class-validator";
-
+import { IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class RenameFileDto {
-    @IsString()
-    @IsNotEmpty()
-    readonly name: string;
+  @ApiProperty({ description: 'Nueva clave del archivo', example: 'new-key.txt' })
+  @IsString()
+  newKey: string;
 }
-
-
