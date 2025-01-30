@@ -26,6 +26,189 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+
+# 🚀 Proyecto NestJS con MongoDB y Docker
+
+Este proyecto utiliza [NestJS](https://nestjs.com/) con **MongoDB** como base de datos y `docker-compose` para simplificar la ejecución en local.
+
+---
+
+## **📌 Requisitos previos**
+
+Antes de comenzar, asegúrate de tener instalado en tu sistema:
+
+- [Node.js](https://nodejs.org/) (`>=16.x`)
+- [npm](https://www.npmjs.com/`)
+- [Docker](https://www.docker.com/) y [Docker Compose](https://docs.docker.com/compose/install/)
+
+Para verificar que Docker está correctamente instalado, ejecuta:
+
+```bash
+docker --version
+docker-compose --version
+```
+
+Si ves las versiones de Docker y Docker Compose, ya puedes continuar. 
+
+---
+
+## **📂 Instalación y configuración**
+
+### **1️⃣ Clonar el repositorio**
+
+```bash
+git clone <URL_DEL_REPOSITORIO>
+cd <NOMBRE_DEL_PROYECTO>
+```
+
+### **2️⃣ Crear el archivo `.env`**
+
+Crea un archivo `.env` en la raíz del proyecto con el siguiente contenido:
+
+```ini
+MONGO_URI=mongodb://admin:adminpassword@mongo:27017/file_management
+```
+
+### **3️⃣ Instalar dependencias**
+
+```bash
+npm install
+```
+
+### **4️⃣ Levantar la aplicación con MongoDB en Docker**
+
+Para iniciar la base de datos, ejecuta:
+
+```bash
+docker-compose up -d
+```
+
+Para iniciar la app 
+
+```bash
+# development
+$ npm run start
+
+# watch mode
+$ npm run start:dev
+
+# production mode
+$ npm run start:prod
+```
+
+Esto iniciará **MongoDB** y la aplicación en segundo plano.
+
+Si la base de datos no se inicializa o hay problemas con el contendor se puede iniciar una base de datos en memoria para un entorno de pruebas
+
+```ini
+USE_IN_MEMORY_DB=true
+```
+
+### **5️⃣ Verificar los contenedores en ejecución**
+
+```bash
+docker ps
+```
+
+Si todo está bien, deberías ver **MongoDB** y la aplicación corriendo.
+
+## **6️⃣ Acceder a la documentación Swagger**
+
+Este proyecto utiliza **Swagger** para documentar y probar las API.
+
+- Una vez que la aplicación está corriendo, puedes acceder a Swagger en la siguiente URL:
+
+  ```
+  http://localhost:3000/api
+  ```
+
+- Desde esta interfaz podrás explorar los endpoints, probar peticiones y ver la documentación generada automáticamente.
+
+
+### **6️⃣ Ejecutar pruebas (Opcional)**
+
+Si el proyecto tiene pruebas unitarias o de integración, puedes ejecutarlas con:
+
+```bash
+npm run test       # Pruebas unitarias
+npm run test:e2e   # Pruebas end-to-end
+npm run test:cov   # Cobertura de pruebas
+```
+
+### **7️⃣ Apagar los contenedores cuando no los necesites**
+
+```bash
+docker-compose down
+```
+
+---
+
+## **📦 Configuración de Docker**
+
+El archivo `docker-compose.yml` utilizado en este proyecto:
+
+```yaml
+version: "3.8"
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo_db
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: adminpassword
+      MONGO_INITDB_DATABASE: file_management
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - mynetwork
+
+volumes:
+  mongo_data:
+
+networks:
+  mynetwork:
+    driver: bridge
+```
+
+---
+
+## **🔎 Acceder a la base de datos MongoDB**
+
+Si necesitas acceder a la base de datos dentro del contenedor, puedes ejecutar:
+
+```bash
+docker exec -it mongo_db mongosh -u admin -p adminpassword
+```
+
+Luego, puedes listar las bases de datos disponibles con:
+
+```bash
+show dbs
+```
+
+---
+
+## **📌 Notas importantes**
+
+- Asegúrate de que el puerto `27017` no esté en uso antes de levantar el contenedor.
+- La base de datos **se creará automáticamente** cuando se ejecute la aplicación.
+- Si necesitas eliminar todos los datos almacenados en MongoDB, puedes eliminar el volumen con:
+
+```bash
+docker-compose down -v
+```
+
+---
+
+### **📢 Soporte y contribuciones**
+
+Si encuentras algún problema o tienes sugerencias, no dudes en abrir un **issue** en el repositorio. 🚀
+
+
 ## Project setup
 
 ```bash
@@ -57,6 +240,8 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
+
+
 
 ## Deployment
 

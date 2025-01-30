@@ -27,6 +27,7 @@ export class FilesService {
             const bucketName = process.env.AWS_S3_BUCKET_NAME || ''; // Lee el nombre del bucket desde el .env
             const newFile = new this.fileModel({
                 filename: file.originalname,
+                key: `${Date.now()}-${file.originalname}`, // Nombre único para el archivo
                 url: await this.awsService.uploadFile(file, bucketName), // URL pública del archivo en S3
                 size: file.size,
                 mimetype: file.mimetype,
@@ -81,10 +82,10 @@ export class FilesService {
 
             // Primero elimina el archivo del bucket S3
             await this.awsService.deleteFile(key, bucketName);
-    
+
 
             // Luego elimina el documento de la base de datos
-            const deletedDocument = await this.fileModel.findOneAndDelete({ url: key });
+            const deletedDocument = await this.fileModel.findOneAndDelete({ key });
             if (!deletedDocument) {
                 throw new Error(`No se encontró el archivo con la clave "${key}" en la base de datos.`);
             }
@@ -116,9 +117,9 @@ export class FilesService {
 
 
             // Verificar si el documento existe
-            const existingDocument = await this.fileModel.findOne({ url: oldKey });
+            const existingDocument = await this.fileModel.findOne({ key: oldKey });
             if (!existingDocument) {
-                throw new Error(`Document with oldKey ${oldKey} not found.`);
+                throw new Error(`El archivo con la clave "${oldKey}" no existe.`);
             }
 
             // Renombrar el archivo en AWS S3
@@ -126,9 +127,10 @@ export class FilesService {
 
 
             // Actualizar el documento en la base de datos
+
             const updatedDocument = await this.fileModel.findOneAndUpdate(
-                { url: oldKey },
-                { url: newUrl },
+                { key: oldKey },
+                { url: newUrl , key },
                 { new: true } // Devuelve el documento actualizado
             );
 

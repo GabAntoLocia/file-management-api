@@ -9,6 +9,9 @@ export class File extends Document {
   @Prop({ required: true })
   url: string; // URL completa del archivo en S3
 
+  @Prop({ required: true })
+  key: string; // Clave (nombre) del archivo en S3
+
   @Prop()
   size: number; // Tamaño del archivo en bytes
 
