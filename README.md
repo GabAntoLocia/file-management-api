@@ -66,7 +66,7 @@ cd <NOMBRE_DEL_PROYECTO>
 Crea un archivo `.env` en la raíz del proyecto con el siguiente contenido:
 
 ```ini
-MONGO_URI=mongodb://admin:adminpassword@mongo:27017/file_management
+MONGO_URI=mongodb://admin:adminpassword@localhost:27017/file_management?authSource=admin
 ```
 
 ### **3️⃣ Instalar dependencias**
@@ -103,6 +103,12 @@ Si la base de datos no se inicializa o hay problemas con el contendor se puede i
 ```ini
 USE_IN_MEMORY_DB=true
 ```
+
+usar instancia ec2 con un contenedor de docker 
+```ini
+MONGO_URI=mongodb://root:rootpassword@54.224.172.123:27017/file_management?authSource=admin
+```
+
 
 ### **5️⃣ Verificar los contenedores en ejecución**
 
