@@ -10,9 +10,9 @@ export class AwsService {
         // Configura el cliente S3
 
         this.s3 = new S3({
-            // accessKeyId: process.env.AWS_ACCESS_KEY,
-            // secretAccessKey: process.env.AWS_SECRET_KEY,
-            // region: process.env.AWS_S3_REGION,
+            accessKeyId: process.env.AWS_ACCESS_KEY,
+            secretAccessKey: process.env.AWS_SECRET_KEY,
+            region: process.env.AWS_S3_REGION,
         });
     }
 
@@ -148,10 +148,13 @@ export class AwsService {
     async uploadImageFromUrl(imageUrl: string, bucketName: string, key: string): Promise<string> {
         try {
             // Descargar la imagen desde la URL externa
+            console.log("imageURl: ", imageUrl)
             const response = await axios.get(imageUrl, {
-                responseType: 'arraybuffer', // Asegúrate de obtener los datos binarios
+                responseType: 'arraybuffer',
             });
 
+            
+            console.log(response)
             const buffer = Buffer.from(response.data, 'binary');
             const contentType = response.headers['content-type'];
 
@@ -162,7 +165,6 @@ export class AwsService {
                     Key: key,
                     Body: buffer,
                     ContentType: contentType,
-                    ACL: 'public-read', // Haz que el archivo sea público si es necesario
                 })
                 .promise();
 
@@ -170,7 +172,7 @@ export class AwsService {
             return `https://${bucketName}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/${key}`;
         } catch (error) {
             throw new HttpException(
-                'Error al procesar la imagen o subirla a S3',
+                `Error al procesar la imagen o subirla a S3: ${error} `,
                 HttpStatus.INTERNAL_SERVER_ERROR,
             );
         }
