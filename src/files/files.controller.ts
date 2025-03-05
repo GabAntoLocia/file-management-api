@@ -132,7 +132,7 @@ export class FilesController {
         const imageUrl = body.imageUrl; // URL de la imagen a sub
         const fileUrl = await this.filesService.uploadFromUrl(imageUrl, userId); // Sube la imagen a S3
         return {
-            message: 'Imagen subida con éxito',
+            message: 'Archivo subido correctamente.',
             fileUrl,
         };
     }
