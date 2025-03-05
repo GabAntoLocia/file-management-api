@@ -158,6 +158,7 @@ export class FilesService {
     async listFiles(): Promise<any> {
         try {
             const bucketName = process.env.AWS_S3_BUCKET_NAME || ''; // Lee el nombre del bucket desde el .env
+            console.log("bucketName: ", bucketName)
             return await this.awsService.listFiles(bucketName);
         } catch (error) {
             throw new Error('Error al listar los archivos: ' + error.message);
@@ -175,11 +176,18 @@ export class FilesService {
      * const fileUrl = await filesService.uploadFromUrl(imageUrl);
      * ```
      **/
-    async uploadFromUrl(imageUrl: string): Promise<string> {
+    async uploadFromUrl(imageUrl: string, ownerId: string): Promise<string> {
         try {
             const bucketName = process.env.AWS_S3_BUCKET_NAME || ''; // Lee el nombre del bucket desde el .env
             const key = `${Date.now()}-${imageUrl.split('/').pop()}`; // Genera un nombre único para la imagen
-            return await this.awsService.uploadImageFromUrl(imageUrl, bucketName, key);
+            const url = await this.awsService.uploadImageFromUrl(imageUrl, bucketName, key);
+            const newFile = new this.fileModel({
+                filename: imageUrl.split('/').pop(),
+                key, // Nombre único para el archivo
+                url, // URL pública del archivo en S3
+                ownerId,
+            });
+            return newFile.save().then((file) => file.url);
         } catch (error) {
             throw new Error('Error al subir el archivo: ' + error.message);
         }

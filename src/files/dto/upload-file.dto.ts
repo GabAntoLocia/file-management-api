@@ -13,7 +13,7 @@ export class UploadFileDto {
 
   @ApiProperty({ description: 'Tipo MIME del archivo', example: 'text/plain' })
   @IsString()
-  @Matches(/^(image|text|application)\/[a-zA-Z0-9.-]+$/, {
+  @Matches(/^(image|text|application|video)\/[a-zA-Z0-9.-]+$/, {
     message: 'El tipo MIME no es válido',
   })
   mimetype: string;

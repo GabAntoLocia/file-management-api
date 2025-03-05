@@ -153,8 +153,7 @@ export class AwsService {
                 responseType: 'arraybuffer',
             });
 
-            
-            console.log(response)
+
             const buffer = Buffer.from(response.data, 'binary');
             const contentType = response.headers['content-type'];
 

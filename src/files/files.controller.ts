@@ -128,9 +128,9 @@ export class FilesController {
     @ApiResponse({ status: 401, description: 'No autorizado.' })
     @ApiResponse({ status: 500, description: 'Error al subir el archivo.' })
     @Post('upload-from-url')
-    async uploadFromUrl(@Body() body: UploadUrlDto) {
+    async uploadFromUrl(@Body() body: UploadUrlDto, @GetUser('userId') userId: string,) {
         const imageUrl = body.imageUrl; // URL de la imagen a sub
-        const fileUrl = await this.filesService.uploadFromUrl(imageUrl); // Sube la imagen a S3
+        const fileUrl = await this.filesService.uploadFromUrl(imageUrl, userId); // Sube la imagen a S3
         return {
             message: 'Imagen subida con éxito',
             fileUrl,
